@@ -25,9 +25,6 @@ class Event {
     var members = [Member]()
     var bills = [Bill]()
     
-    //debug
-//    weak var mem: Member?
-    
     init(_ name: String, withPic pic: UIImage? = nil){
         self.name = name
         self.image = pic
@@ -70,29 +67,20 @@ class Event {
             }
             return res
         }
-    }    
+    }
 }
 
-// мужик в тусовке
+// человек в тусовке
 class Member: Equatable {
-    var membersInBills = [MemberInBill]()
+    
+    var membersInBills = NSHashTable<MemberInBill>(options: .weakMemory)
     
     var name: String = ""
-    var enabled: Bool = true{
-        didSet{
-//            NotificationCenter.default.post(name: NotificationTypes.memberEnabledChanged, object: nil)
-//            name = name + "!"
-        }
-    }
+    // TODO для исключения человека из тусовки без удаления из списка
+    var enabled: Bool = true
     
     init(_ name: String){
         self.name = name
-    }
-    
-    func remove(memberInBill: MemberInBill){
-        if let idx = membersInBills.index(of: memberInBill){
-            membersInBills.remove(at: idx)
-        }
     }
     
     var debt: Double{
@@ -101,7 +89,7 @@ class Member: Equatable {
             guard enabled else{
                 return res
             }
-            for memInBill in membersInBills{
+            for memInBill in membersInBills.allObjects{
                 res += memInBill.debt
             }
             return res
@@ -113,8 +101,8 @@ class Member: Equatable {
     }
     
     deinit {
+        membersInBills.allObjects.forEach({$0.detach()})
         print("deinit member")
-        membersInBills.forEach{$0.detach()}
     }
 }
 
@@ -123,14 +111,12 @@ class MemberInBill: Equatable{
     weak var bill: Bill!
     weak var member: Member!
     
-    // отцепляем мужика в чеке от зависимостей и даем ему спокойно умереть
-    func detach(){
-        bill?.remove(memberInBill: self)
-        member?.remove(memberInBill: self)
-    }
-    
     deinit {
         print("deinit memberinbill")
+    }
+    
+    func detach(){
+        bill.remove(memberInBill: self)
     }
     public private(set) var debt: Double = 0.0
     
@@ -165,7 +151,7 @@ class MemberInBill: Equatable{
             }
             rest = rest / Double(otherCount)
             let userInfo = ["debt" : rest]
-//            NotificationCenter.default.post(name: NotificationTypes.memberEnabledChanged, object: self, userInfo: userInfo)
+            //            NotificationCenter.default.post(name: NotificationTypes.memberEnabledChanged, object: self, userInfo: userInfo)
         }
     }
 }
@@ -186,9 +172,8 @@ class Bill: Equatable, Assignable{
     
     // Если копия, то при ее удалении не детачим участников в чеке.
     // См. deinit
-    private var isCopy: Bool
-    var name: String
-    var images: [UIImage]
+    var name: String = ""
+    var images: [UIImage] = []
     var membersInBills: [MemberInBill] = []
     
     
@@ -216,10 +201,7 @@ class Bill: Equatable, Assignable{
         }
     }
     
-    init(isCopy: Bool = false){
-        self.name = ""
-        self.images = []
-        self.isCopy = isCopy
+    init(){
         NotificationCenter.default.addObserver(self, selector: #selector(onMemberInBillDebtChanged), name: NotificationTypes.memberEnabledChanged, object: nil)
     }
     
@@ -228,7 +210,7 @@ class Bill: Equatable, Assignable{
         guard let sender = notification.object as? MemberInBill else{
             return
         }
-
+        
         guard let userInfo = notification.userInfo,
             let debt = userInfo["debt"] as? Double else{
                 return
@@ -245,16 +227,13 @@ class Bill: Equatable, Assignable{
     func append(member: Member){
         let memberInBill = MemberInBill(bill: self, member: member)
         membersInBills.append(memberInBill)
-        member.membersInBills.append(memberInBill)
+        member.membersInBills.add(memberInBill)
     }
     
     func remove(memberInBillAt idx: Int){
         guard idx < membersInBills.count else{
             fatalError()
         }
-        let memberInBill = membersInBills[idx]
-        let member = memberInBill.member!
-        member.remove(memberInBill: memberInBill)
         membersInBills.remove(at: idx)
     }
     
@@ -271,9 +250,6 @@ class Bill: Equatable, Assignable{
     
     deinit {
         NotificationCenter.default.removeObserver(self)
-        if !isCopy{
-            membersInBills.forEach{$0.detach()}
-        }
     }
 }
 

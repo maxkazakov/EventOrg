@@ -66,10 +66,10 @@ class BillTableViewController: UITableViewController{
             guard let selIdxPath = tableView.indexPathForSelectedRow else {
                 return
             }
-            let billOriginal = event.bills[selIdxPath.row]
-            let billCopy = Bill(isCopy: true)
-            billCopy.assign(fromObj: billOriginal)
-            billViewController.bill = billCopy
+            let bill = event.bills[selIdxPath.row]
+            let billCandidate = Bill()
+            billCandidate.assign(fromObj: bill)
+            billViewController.bill = billCandidate
         }
     }
     
