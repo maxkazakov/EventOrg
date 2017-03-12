@@ -10,7 +10,7 @@ import UIKit
 
 class BillViewController: UIViewController, UITextFieldDelegate,
     UICollectionViewDelegate, UICollectionViewDataSource, UIImagePickerControllerDelegate, UINavigationControllerDelegate,
-    UITableViewDataSource, UITableViewDelegate{
+    UITableViewDataSource, UITableViewDelegate, BillMemberViewCellDelegate{
 
     // При редактировнии здесь лежит копия оригинального экземпляра
     // При создании нового - новый экземпляр, который станет оригинальным
@@ -25,29 +25,15 @@ class BillViewController: UIViewController, UITextFieldDelegate,
     @IBOutlet weak var saveBtn: UIBarButtonItem!
     @IBOutlet weak var membersTable: UITableView!
     
-    
-    var _decimalKeyboard: UIToolbar!
-    var decimalKeyboard: UIToolbar!{
-        if _decimalKeyboard == nil{
-            _decimalKeyboard = UIToolbar(frame: CGRect(x: 0, y: 0, width: 320, height: 50))
-            _decimalKeyboard.barStyle       = UIBarStyle.default
-            let flexSpace              = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.flexibleSpace, target: nil, action: nil)
-            let done: UIBarButtonItem  = UIBarButtonItem(title: "Done", style: UIBarButtonItemStyle.done, target: self, action: #selector(self.doneButtonAction))
-            
-            var items = [UIBarButtonItem]()
-            items.append(flexSpace)
-            items.append(done)
-            
-            _decimalKeyboard.items = items
-            _decimalKeyboard.sizeToFit()
-        }
-        return _decimalKeyboard
-    }
-    
     @IBAction func close(_ sender: Any) {
         if let nc = navigationController{
             nc.popViewController(animated: true)
         }
+    }
+    
+    @IBAction func reset(_ sender: Any) {
+        bill.resetBillMembers()
+        membersTable.reloadData()
     }
     
     deinit {
@@ -73,11 +59,18 @@ class BillViewController: UIViewController, UITextFieldDelegate,
         }
     }
     
-    // MARK: - Text field delegate
-    
-    func doneButtonAction() {
-        currentTextField.resignFirstResponder()
+    // MARK: - BillMemberViewCellDelegate
+    func onDebtChanged(_ cell: BillMemberViewCell, debt value: Double) {
+        guard let path = membersTable.indexPath(for: cell) else{
+            fatalError("onDebtChanged bad cell")
+        }
+        let billMem = bill.membersInBills[path.row]
+        billMem.setDebt(value, withNotifyOther: true)
+        membersTable.reloadData()
     }
+    
+    
+    // MARK: - Text field delegate
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
@@ -88,20 +81,20 @@ class BillViewController: UIViewController, UITextFieldDelegate,
         if textField === nameTf{
            bill.name = nameTf.text!
            navItem.title = bill.name
+           updateSaveBtn()
         }
-        else if textField === costTf{
-            bill.cost = 0.0
+        else if textField === costTf{            
             if let costval = Double(costTf.text!){
                 bill.cost = costval
             }
             membersTable.reloadData()
         }
-        updateSaveBtn()
     }
     
-    weak var currentTextField: UITextField!
     func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
-        currentTextField = textField
+        if textField === costTf{
+            textField.setDecimalKeyboard()
+        }
         return true
     }
     
@@ -122,11 +115,12 @@ class BillViewController: UIViewController, UITextFieldDelegate,
         updateSaveBtn()
         costTf.delegate = self
         nameTf.delegate = self
+        
         photosCV.delegate = self
         photosCV.dataSource = self
+        
         membersTable.delegate = self
         membersTable.dataSource = self
-        costTf.inputAccessoryView = decimalKeyboard
     }
    
     func updateInfo(){
@@ -209,7 +203,6 @@ class BillViewController: UIViewController, UITextFieldDelegate,
     // MARK: - TableView Delegate - memberTable
     func numberOfSections(in tableView: UITableView) -> Int {
            return 1
-
     }
     
 
@@ -223,12 +216,10 @@ class BillViewController: UIViewController, UITextFieldDelegate,
             let memberInBill = bill.membersInBills[indexPath.row]
             cell.name.text = memberInBill.member.name
             cell.debt.text = String(format: POHelper.currencyFormat, memberInBill.debt)
-            cell.debt.inputAccessoryView = decimalKeyboard
-            cell.debt.delegate = self
+            cell.delegate = self
+            cell.setManuallyImageHidden(!memberInBill.editedManually)
             return cell
     }
-    
-
     
     @IBAction func deleteMember(_ sender: Any) {
         if let idx = membersTable.indexPathForSelectedRow{

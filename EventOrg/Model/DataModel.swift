@@ -10,7 +10,7 @@ import UIKit
 
 struct NotificationTypes{
     // изменился долг одго из участников чека
-    static let memberEnabledChanged = Notification.Name(rawValue: "MemberInBillDebtChanged")
+    static let memberInBillDebtChanged = Notification.Name(rawValue: "MemberInBillDebtChanged")
 }
 
 protocol Assignable{
@@ -115,9 +115,13 @@ class MemberInBill: Equatable{
         print("deinit memberinbill")
     }
     
+    // Вручную отредактированные не реагируют на изменения других объектов
+    var editedManually = false
+    
     func detach(){
         bill.remove(memberInBill: self)
     }
+    
     public private(set) var debt: Double = 0.0
     
     init(bill: Bill, member: Member) {
@@ -129,8 +133,8 @@ class MemberInBill: Equatable{
         return lhs === rhs
     }
     
-    // withNotifyOther - если true - пересчитываем долг у других мужиков в чеке
-    // с true должно вызываться только из viewcontroller-a в момент когда юзер руками правит долг
+    // withNotifyOther - true только когда значение задается пользователем вручну.
+    // пересчитываем долг у других мужиков в чеке + помечаем значние как отредактированное вручную
     func setDebt(_ debt: Double, withNotifyOther: Bool = false){
         if debt > bill.cost{
             self.debt = bill.cost
@@ -140,18 +144,31 @@ class MemberInBill: Equatable{
         }
         
         if withNotifyOther{
+            editedManually = true
+
+            var fixedCost = 0.0
+            var otherCount = 0
+            
+            bill.membersInBills.forEach{
+                if $0.editedManually{
+                    fixedCost += $0.debt
+                }
+                else{
+                    otherCount += 1
+                }
+            }
+            
             // высчитываем как распределить остаток
-            var rest = bill.cost - self.debt
+            var rest = bill.cost - fixedCost
             if rest < 0 {
                 rest = 0.0
             }
-            let otherCount = bill.membersInBills.count - 1
             guard otherCount > 0 else{
                 return
             }
             rest = rest / Double(otherCount)
             let userInfo = ["debt" : rest]
-            //            NotificationCenter.default.post(name: NotificationTypes.memberEnabledChanged, object: self, userInfo: userInfo)
+            NotificationCenter.default.post(name: NotificationTypes.memberInBillDebtChanged, object: self, userInfo: userInfo)
         }
     }
 }
@@ -167,7 +184,7 @@ class Bill: Equatable, Assignable{
         }
         name = obj.name
         images = obj.images
-        _cost = obj.cost
+        cost = obj.cost
     }
     
     // Если копия, то при ее удалении не детачим участников в чеке.
@@ -182,42 +199,38 @@ class Bill: Equatable, Assignable{
     }
     
     // like member
-    private var _cost: Double = 0.0
+//    private var _cost: Double = 0.0
     // like prop
-    var cost: Double {
-        get{
-            return _cost
-        }
-        set{
-            _cost = newValue
-            // обновляем долг каждого члена, приравниваем к средней задолженности
-            guard membersInBills.count > 0 else {
-                return
-            }
-            let avg = cost / Double(membersInBills.count)
-            for memInBill in membersInBills{
-                memInBill.setDebt(avg)
-            }
-        }
-    }
+    var cost: Double = 0.0
+//        {
+//        get{
+//            return _cost
+//        }
+//        set{
+//            _cost = newValue
+//            // обновляем долг каждого члена, приравниваем к средней задолженности
+//            guard membersInBills.count > 0 else {
+//                return
+//            }
+//            let avg = cost / Double(membersInBills.count)
+//            for memInBill in membersInBills{
+//                memInBill.setDebt(avg)
+//            }
+//        }
+//    }
     
     init(){
-        NotificationCenter.default.addObserver(self, selector: #selector(onMemberInBillDebtChanged), name: NotificationTypes.memberEnabledChanged, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(onMemberInBillDebtChanged), name: NotificationTypes.memberInBillDebtChanged, object: nil)
     }
     
-    @objc func onMemberInBillDebtChanged(_ notification: Notification){
-        // сендер есть ?
-        guard let sender = notification.object as? MemberInBill else{
-            return
-        }
-        
+    @objc func onMemberInBillDebtChanged(_ notification: Notification){       
         guard let userInfo = notification.userInfo,
             let debt = userInfo["debt"] as? Double else{
                 return
         }
-        // меняем долг у всех, кроме отправщика
+        // меняем долг у всех, кому значение не задавали вручную
         for mem in membersInBills{
-            if sender != mem{
+            if !mem.editedManually {
                 mem.setDebt(debt)
             }
         }
@@ -250,6 +263,18 @@ class Bill: Equatable, Assignable{
     
     deinit {
         NotificationCenter.default.removeObserver(self)
+    }
+    
+    func resetBillMembers(){
+        let cnt = membersInBills.count
+        guard cnt != 0 else{
+            return
+        }
+        let avgVal = cost / Double(cnt)
+        membersInBills.forEach{
+            $0.editedManually = false
+            $0.setDebt(avgVal)
+        }
     }
 }
 

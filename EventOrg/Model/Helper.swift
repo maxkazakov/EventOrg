@@ -6,8 +6,17 @@
 //  Copyright © 2017 Максим Казаков. All rights reserved.
 //
 
-import Foundation
+import UIKit
 
+// MARK : Helper static class
 class POHelper{
     static var currencyFormat = "%.0f"
+    static let decimalKeyboard = PODecimalKeyboardProvider()
+}
+
+
+extension UITextField {
+    func setDecimalKeyboard() {
+        POHelper.decimalKeyboard.applyKeyboard(toTextField: self)
+    }
 }

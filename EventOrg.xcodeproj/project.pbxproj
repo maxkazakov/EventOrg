@@ -28,6 +28,7 @@
 		9B6EBFA41E6C70820047B574 /* POCheckBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B6EBF9D1E6C70820047B574 /* POCheckBox.swift */; };
 		9B6EBFA71E6C708C0047B574 /* LibraryAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B6EBFA51E6C708C0047B574 /* LibraryAPI.swift */; };
 		9B6EBFA81E6C708C0047B574 /* PersistencyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B6EBFA61E6C708C0047B574 /* PersistencyManager.swift */; };
+		9B6EBFAA1E71C1A40047B574 /* PODecimalKeyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B6EBFA91E71C1A40047B574 /* PODecimalKeyboard.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -54,6 +55,7 @@
 		9B6EBF9D1E6C70820047B574 /* POCheckBox.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = POCheckBox.swift; path = View/POCheckBox.swift; sourceTree = "<group>"; };
 		9B6EBFA51E6C708C0047B574 /* LibraryAPI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = LibraryAPI.swift; path = Api/LibraryAPI.swift; sourceTree = "<group>"; };
 		9B6EBFA61E6C708C0047B574 /* PersistencyManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = PersistencyManager.swift; path = Api/PersistencyManager.swift; sourceTree = "<group>"; };
+		9B6EBFA91E71C1A40047B574 /* PODecimalKeyboard.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = PODecimalKeyboard.swift; path = View/PODecimalKeyboard.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -132,6 +134,7 @@
 				9B6EBF9B1E6C70820047B574 /* EventTableViewCell.swift */,
 				9B6EBF9C1E6C70820047B574 /* MemberTableViewCell.swift */,
 				9B6EBF9D1E6C70820047B574 /* POCheckBox.swift */,
+				9B6EBFA91E71C1A40047B574 /* PODecimalKeyboard.swift */,
 			);
 			name = View;
 			sourceTree = "<group>";
@@ -226,6 +229,7 @@
 				9B6EBF891E6C706E0047B574 /* DataModel.swift in Sources */,
 				9B6EBFA21E6C70820047B574 /* EventTableViewCell.swift in Sources */,
 				9B6EBF8A1E6C706E0047B574 /* Helper.swift in Sources */,
+				9B6EBFAA1E71C1A40047B574 /* PODecimalKeyboard.swift in Sources */,
 				9B6EBFA01E6C70820047B574 /* BillTableViewCell.swift in Sources */,
 				9B6EBF9F1E6C70820047B574 /* BillMemberViewCell.swift in Sources */,
 				9B6EBF961E6C707B0047B574 /* MembersTableViewController.swift in Sources */,
