@@ -20,3 +20,9 @@ extension UITextField {
         POHelper.decimalKeyboard.applyKeyboard(toTextField: self)
     }
 }
+
+extension UITableViewController{
+    var Storage: DataStorage{
+        return DataStorage.instance
+    }
+}

@@ -19,13 +19,15 @@ protocol Assignable{
 }
 
 class Event {
+    var id: Int
     var name: String;
     var image: UIImage?
     
     var members = [Member]()
     var bills = [Bill]()
     
-    init(_ name: String, withPic pic: UIImage? = nil){
+    init(id: Int = -1, name: String, withPic pic: UIImage? = nil){
+        self.id = id
         self.name = name
         self.image = pic
     }
@@ -198,26 +200,7 @@ class Bill: Equatable, Assignable{
         return lhs === rhs
     }
     
-    // like member
-//    private var _cost: Double = 0.0
-    // like prop
     var cost: Double = 0.0
-//        {
-//        get{
-//            return _cost
-//        }
-//        set{
-//            _cost = newValue
-//            // обновляем долг каждого члена, приравниваем к средней задолженности
-//            guard membersInBills.count > 0 else {
-//                return
-//            }
-//            let avg = cost / Double(membersInBills.count)
-//            for memInBill in membersInBills{
-//                memInBill.setDebt(avg)
-//            }
-//        }
-//    }
     
     init(){
         NotificationCenter.default.addObserver(self, selector: #selector(onMemberInBillDebtChanged), name: NotificationTypes.memberInBillDebtChanged, object: nil)

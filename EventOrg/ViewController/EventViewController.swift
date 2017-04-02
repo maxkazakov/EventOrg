@@ -21,7 +21,7 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate{
         
 //      Edit mode
         if (event == nil){
-            event = Event("", withPic: UIImage(named: "DefaultEventImg"))
+            event = Event(name: "", withPic: UIImage(named: "DefaultEventImg"))
         }
     }
     

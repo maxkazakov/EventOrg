@@ -10,18 +10,16 @@ import UIKit
 
 class EventsTableViewController: UITableViewController {
 
-    var events: [Event]?
+    var events: [Event]?{
+        return Storage.getEvents()
+    }
     
-
     @IBOutlet weak var navItem: UINavigationItem!
     @IBOutlet var table: UITableView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        events = LibraryAPI.instance.getEvents()
         navItem.leftBarButtonItem = editButtonItem
-        
     }
 
     override func didReceiveMemoryWarning() {
@@ -38,7 +36,7 @@ class EventsTableViewController: UITableViewController {
             else{
                 let event: Event! = eventViewController.event
                 let newIndexPath = IndexPath(row: events!.count, section: 0)
-                events!.append(event)
+                Storage.add(event: event)            
                 table.insertRows(at: [newIndexPath], with: .automatic)
             }
         }
@@ -55,7 +53,6 @@ class EventsTableViewController: UITableViewController {
         return events!.count
     }
     
-    
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cellIdentifier = "EventTableViewCell"
         let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier, for: indexPath) as! EventTableViewCell
@@ -71,7 +68,7 @@ class EventsTableViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete{
-            events?.remove(at: indexPath.row)
+            Storage.delete(rowId: indexPath.row)
             tableView.deleteRows(at: [indexPath], with: .fade)
         }
     }
