@@ -18,18 +18,26 @@ protocol Assignable{
     func assign(fromObj obj: T)
 }
 
-class Event {
-    var id: Int
+class Base{
+    var id: Int64
+    init(id: Int64 = -1){
+        self.id = id
+    }
+    
+}
+
+class Event: Base {
+    
     var name: String;
     var image: UIImage?
     
     var members = [Member]()
     var bills = [Bill]()
     
-    init(id: Int = -1, name: String, withPic pic: UIImage? = nil){
-        self.id = id
+    init(id: Int64 = -1, name: String, withPic pic: UIImage? = nil){
         self.name = name
         self.image = pic
+        super.init(id: id)        
     }
     
     func remove(member: Member){

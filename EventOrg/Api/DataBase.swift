@@ -10,16 +10,14 @@ import Foundation
 import SQLite
 
 class DataBase{
-    
-    struct EventTable {
-        static let table = Table("event")
-        static let id = Expression<Int64>("id")
-        static let name = Expression<String>("name")
-        static let image = Expression<UIImage?>("image")
-    }
+    static let instance = DataBase()
     
     let dbname = "userdata.db"
-    private var db: Connection? = nil
+    var db: Connection? = nil
+    
+    func run(){
+        
+    }
     
     init() {
         let fileManager = FileManager.default
@@ -49,7 +47,7 @@ class DataBase{
     
     func createScheme() {
         do {
-//            try db!.run(EventTable.table.drop())
+            // try db!.run(EventTable.table.drop())
             try db!.run(EventTable.table.create(ifNotExists: true) { table in
                 table.column(EventTable.id, primaryKey: .autoincrement)
                 table.column(EventTable.name)
@@ -66,38 +64,15 @@ class DataBase{
         do {
             for event in try db!.prepare(EventTable.table) {
                 events.append(Event(
-                    id: Int(event[EventTable.id]),
+                    id: event[EventTable.id],
                     name: event[EventTable.name],
                     withPic: event.get(EventTable.image)))
             }
         } catch {
             print("Select failed")
-        }
-        
+        }        
         return events
     }
-    
-    func insertEvent(_ event: Event) -> Int{
-        do {
-            let insert = EventTable.table.insert(EventTable.name <- event.name, EventTable.image <- event.image)
-            let id = try db!.run(insert)
-            
-            return Int(id)
-        } catch{
-            print(error)
-            return -1
-        }
-    }
-    
-    func deleteEvent(idx: Int){
-        do {
-            let event = EventTable.table.filter(EventTable.id == Int64(idx))
-            try db!.run(event.delete())
-        } catch {
-            print("Delete failed")
-        }
-    }
-
 }
 
 extension UIImage: Value {
@@ -110,5 +85,4 @@ extension UIImage: Value {
     public var datatypeValue: Blob {
         return UIImagePNGRepresentation(self)!.datatypeValue
     }
-    
 }

@@ -10,15 +10,16 @@ import UIKit
 
 class EventsTableViewController: UITableViewController {
 
-    var events: [Event]?{
-        return Storage.getEvents()
-    }
+    var events: [Event]!
     
     @IBOutlet weak var navItem: UINavigationItem!
     @IBOutlet var table: UITableView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        events = DataBase.instance.selectAllEvents();
+        
         navItem.leftBarButtonItem = editButtonItem
     }
 
@@ -31,12 +32,15 @@ class EventsTableViewController: UITableViewController {
         if let eventViewController = sender.source as? EventViewController
         {
             if let selectedPath = table.indexPathForSelectedRow{
+                let event = events[selectedPath.row]
+                event.update()
                 table.reloadRows(at: [selectedPath], with: .middle)
             }
             else{
                 let event: Event! = eventViewController.event
-                let newIndexPath = IndexPath(row: events!.count, section: 0)
-                Storage.add(event: event)            
+                event.save()
+                let newIndexPath = IndexPath(row: events.count, section: 0)
+                events.append(event)
                 table.insertRows(at: [newIndexPath], with: .automatic)
             }
         }
@@ -68,7 +72,8 @@ class EventsTableViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete{
-            Storage.delete(rowId: indexPath.row)
+            let event = events.remove(at: indexPath.row)
+            event.delete()            
             tableView.deleteRows(at: [indexPath], with: .fade)
         }
     }

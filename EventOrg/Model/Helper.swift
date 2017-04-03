@@ -21,8 +21,4 @@ extension UITextField {
     }
 }
 
-extension UITableViewController{
-    var Storage: DataStorage{
-        return DataStorage.instance
-    }
-}
+

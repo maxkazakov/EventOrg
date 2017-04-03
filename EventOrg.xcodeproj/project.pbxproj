@@ -8,7 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		28133A57C0F3E3FE47B58B7A /* Pods_EventOrg.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D4D6BF5F619C3F2E1B5AED2F /* Pods_EventOrg.framework */; };
-		9B4CD5A41E8EE8D5000E16EA /* DataBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B4CD5A31E8EE8D5000E16EA /* DataBase.swift */; };
+		9B100D701E92B29600A8D037 /* PersistBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B100D6F1E92B29600A8D037 /* PersistBase.swift */; };
+		9B100D721E92B2A700A8D037 /* DataBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B100D711E92B2A700A8D037 /* DataBase.swift */; };
+		9B100D741E92B57800A8D037 /* EventPersist.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B100D731E92B57800A8D037 /* EventPersist.swift */; };
 		9B697F2A1E3DC384007D61CF /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B697F291E3DC384007D61CF /* AppDelegate.swift */; };
 		9B697F2F1E3DC384007D61CF /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9B697F2D1E3DC384007D61CF /* Main.storyboard */; };
 		9B697F311E3DC384007D61CF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9B697F301E3DC384007D61CF /* Assets.xcassets */; };
@@ -28,14 +30,15 @@
 		9B6EBFA21E6C70820047B574 /* EventTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B6EBF9B1E6C70820047B574 /* EventTableViewCell.swift */; };
 		9B6EBFA31E6C70820047B574 /* MemberTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B6EBF9C1E6C70820047B574 /* MemberTableViewCell.swift */; };
 		9B6EBFA41E6C70820047B574 /* POCheckBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B6EBF9D1E6C70820047B574 /* POCheckBox.swift */; };
-		9B6EBFA71E6C708C0047B574 /* Storage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B6EBFA51E6C708C0047B574 /* Storage.swift */; };
 		9B6EBFAA1E71C1A40047B574 /* PODecimalKeyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B6EBFA91E71C1A40047B574 /* PODecimalKeyboard.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		081557F5A663B3B28741B2E3 /* Pods-EventOrg.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EventOrg.release.xcconfig"; path = "Pods/Target Support Files/Pods-EventOrg/Pods-EventOrg.release.xcconfig"; sourceTree = "<group>"; };
 		86501CBB2A18631E25F2D004 /* Pods-EventOrg.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EventOrg.debug.xcconfig"; path = "Pods/Target Support Files/Pods-EventOrg/Pods-EventOrg.debug.xcconfig"; sourceTree = "<group>"; };
-		9B4CD5A31E8EE8D5000E16EA /* DataBase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataBase.swift; sourceTree = "<group>"; };
+		9B100D6F1E92B29600A8D037 /* PersistBase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = PersistBase.swift; path = Api/Persist/PersistBase.swift; sourceTree = "<group>"; };
+		9B100D711E92B2A700A8D037 /* DataBase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = DataBase.swift; path = Api/DataBase.swift; sourceTree = "<group>"; };
+		9B100D731E92B57800A8D037 /* EventPersist.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EventPersist.swift; sourceTree = "<group>"; };
 		9B697F261E3DC384007D61CF /* EventOrg.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EventOrg.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9B697F291E3DC384007D61CF /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		9B697F2E1E3DC384007D61CF /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -57,7 +60,6 @@
 		9B6EBF9B1E6C70820047B574 /* EventTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = EventTableViewCell.swift; path = View/EventTableViewCell.swift; sourceTree = "<group>"; };
 		9B6EBF9C1E6C70820047B574 /* MemberTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = MemberTableViewCell.swift; path = View/MemberTableViewCell.swift; sourceTree = "<group>"; };
 		9B6EBF9D1E6C70820047B574 /* POCheckBox.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = POCheckBox.swift; path = View/POCheckBox.swift; sourceTree = "<group>"; };
-		9B6EBFA51E6C708C0047B574 /* Storage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Storage.swift; path = Api/Storage.swift; sourceTree = "<group>"; };
 		9B6EBFA91E71C1A40047B574 /* PODecimalKeyboard.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = PODecimalKeyboard.swift; path = View/PODecimalKeyboard.swift; sourceTree = "<group>"; };
 		D4D6BF5F619C3F2E1B5AED2F /* Pods_EventOrg.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_EventOrg.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -74,6 +76,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		9B100D6E1E92B27F00A8D037 /* Persist */ = {
+			isa = PBXGroup;
+			children = (
+				9B100D6F1E92B29600A8D037 /* PersistBase.swift */,
+				9B100D731E92B57800A8D037 /* EventPersist.swift */,
+			);
+			name = Persist;
+			sourceTree = "<group>";
+		};
 		9B697F1D1E3DC384007D61CF = {
 			isa = PBXGroup;
 			children = (
@@ -149,8 +160,8 @@
 		9B8F06331E4594C8002045D8 /* API */ = {
 			isa = PBXGroup;
 			children = (
-				9B6EBFA51E6C708C0047B574 /* Storage.swift */,
-				9B4CD5A31E8EE8D5000E16EA /* DataBase.swift */,
+				9B100D6E1E92B27F00A8D037 /* Persist */,
+				9B100D711E92B2A700A8D037 /* DataBase.swift */,
 			);
 			name = API;
 			sourceTree = "<group>";
@@ -299,16 +310,17 @@
 				9B6EBFA11E6C70820047B574 /* CheckMemberTableViewCell.swift in Sources */,
 				9B6EBFA41E6C70820047B574 /* POCheckBox.swift in Sources */,
 				9B697F2A1E3DC384007D61CF /* AppDelegate.swift in Sources */,
-				9B6EBFA71E6C708C0047B574 /* Storage.swift in Sources */,
 				9B6EBF941E6C707B0047B574 /* EventsTableViewController.swift in Sources */,
 				9B6EBF891E6C706E0047B574 /* DataModel.swift in Sources */,
 				9B6EBFA21E6C70820047B574 /* EventTableViewCell.swift in Sources */,
 				9B6EBF8A1E6C706E0047B574 /* Helper.swift in Sources */,
 				9B6EBFAA1E71C1A40047B574 /* PODecimalKeyboard.swift in Sources */,
 				9B6EBFA01E6C70820047B574 /* BillTableViewCell.swift in Sources */,
-				9B4CD5A41E8EE8D5000E16EA /* DataBase.swift in Sources */,
+				9B100D721E92B2A700A8D037 /* DataBase.swift in Sources */,
+				9B100D701E92B29600A8D037 /* PersistBase.swift in Sources */,
 				9B6EBF9F1E6C70820047B574 /* BillMemberViewCell.swift in Sources */,
 				9B6EBF961E6C707B0047B574 /* MembersTableViewController.swift in Sources */,
+				9B100D741E92B57800A8D037 /* EventPersist.swift in Sources */,
 				9B6EBF921E6C707B0047B574 /* BillTableViewController.swift in Sources */,
 				9B6EBFA31E6C70820047B574 /* MemberTableViewCell.swift in Sources */,
 				9B6EBF951E6C707B0047B574 /* EventViewController.swift in Sources */,
