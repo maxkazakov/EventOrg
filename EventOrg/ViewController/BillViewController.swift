@@ -25,10 +25,11 @@ class BillViewController: UIViewController, UITextFieldDelegate,
     @IBOutlet weak var saveBtn: UIBarButtonItem!
     @IBOutlet weak var membersTable: UITableView!
     
-    @IBAction func close(_ sender: Any) {
-        if let nc = navigationController{
-            nc.popViewController(animated: true)
-        }
+    weak var currentTextField: UITextField?
+    
+    
+    @IBAction func doneBtnClick(_ sender: UIBarButtonItem) {
+//        currentTextField?.resignFirstResponder()
     }
     
     @IBAction func reset(_ sender: Any) {
@@ -64,8 +65,9 @@ class BillViewController: UIViewController, UITextFieldDelegate,
         guard let path = membersTable.indexPath(for: cell) else{
             fatalError("onDebtChanged bad cell")
         }
-        let billMem = bill.membersInBills[path.row]
+        let billMem = bill.membersInBills[path.row]        
         billMem.setDebt(value, withNotifyOther: true)
+        billMem.update()
         membersTable.reloadData()
     }
     
@@ -95,6 +97,7 @@ class BillViewController: UIViewController, UITextFieldDelegate,
         if textField === costTf{
             textField.setDecimalKeyboard()
         }
+        currentTextField = textField
         return true
     }
     
@@ -104,13 +107,8 @@ class BillViewController: UIViewController, UITextFieldDelegate,
     
     override func viewDidLoad() {
         super.viewDidLoad()        
-        
-        if (bill != nil) {
-            updateInfo()
-        }
-        else{
-            bill = Bill()
-        }
+               
+        updateInfo()
         
         updateSaveBtn()
         costTf.delegate = self
@@ -189,6 +187,9 @@ class BillViewController: UIViewController, UITextFieldDelegate,
                     dest.members.append(mem)
                 }
             }
+        }
+        else{
+            currentTextField?.resignFirstResponder()
         }
     }
     

@@ -15,10 +15,6 @@ class DataBase{
     let dbname = "userdata.db"
     var db: Connection? = nil
     
-    func run(){
-        
-    }
-    
     init() {
         let fileManager = FileManager.default
         
@@ -47,12 +43,49 @@ class DataBase{
     
     func createScheme() {
         do {
-            // try db!.run(EventTable.table.drop())
-            try db!.run(EventTable.table.create(ifNotExists: true) { table in
+            
+            if false {
+                try db!.run(EventTable.table.drop(ifExists: true))
+                try db!.run(MemberTable.table.drop(ifExists: true))
+                try db!.run(BillTable.table.drop(ifExists: true))
+                try db!.run(MemberInBillTable.table.drop(ifExists: true))
+            }
+            
+            try db!.run(EventTable.table.create(ifNotExists: false) { table in
                 table.column(EventTable.id, primaryKey: .autoincrement)
                 table.column(EventTable.name)
                 table.column(EventTable.image)
             })
+            
+            try db!.run(MemberTable.table.create(ifNotExists: false) { table in
+                table.column(MemberTable.id, primaryKey: .autoincrement)
+                table.column(MemberTable.name)
+                table.column(MemberTable.event_id)
+                table.foreignKey(MemberTable.event_id, references: EventTable.table, EventTable.id, delete: .cascade)
+            })
+            
+            try db!.run(BillTable.table.create(ifNotExists: false) { table in
+                table.column(BillTable.id, primaryKey: .autoincrement)
+                table.column(BillTable.name)
+                table.column(BillTable.cost)
+                table.column(BillTable.event_id)
+                table.foreignKey(BillTable.event_id, references: EventTable.table, EventTable.id, delete: .cascade)
+            })
+            
+            try db!.run(MemberInBillTable.table.create(ifNotExists: false) { table in
+                table.column(MemberInBillTable.id, primaryKey: .autoincrement)
+                table.column(MemberInBillTable.debt)
+                table.column(MemberInBillTable.manually)
+                table.column(MemberInBillTable.event_id)
+                table.column(MemberInBillTable.bill_id)
+                table.column(MemberInBillTable.member_id)
+                
+                table.foreignKey(MemberInBillTable.event_id, references: EventTable.table, EventTable.id, delete: .cascade)
+                table.foreignKey(MemberInBillTable.bill_id, references: BillTable.table, BillTable.id, delete: .cascade)
+                table.foreignKey(MemberInBillTable.member_id, references: MemberTable.table, MemberTable.id, delete: .cascade)
+            })
+            
+            print("Scheme created")
         } catch {
             print("Unable to create table")
         }
@@ -61,16 +94,88 @@ class DataBase{
     func selectAllEvents() -> [Event]{
         var events = [Event]()
         
+        var cnt = 0
         do {
-            for event in try db!.prepare(EventTable.table) {
+            for row in try db!.prepare(EventTable.table) {
                 events.append(Event(
-                    id: event[EventTable.id],
-                    name: event[EventTable.name],
-                    withPic: event.get(EventTable.image)))
+                    id: row[EventTable.id],
+                    name: row[EventTable.name],
+                    withPic: row.get(EventTable.image)))
+                cnt += 1
             }
         } catch {
-            print("Select failed")
-        }        
+            print("Events loading failed")
+        }
+        print("Events loaded. Count \(cnt)")
+        
+        cnt = 0
+        do {
+            for row in try db!.prepare(MemberTable.table) {
+                let event_id = row[MemberTable.event_id]
+                guard let event = events.first(where: {$0.id == event_id}) else{
+                    continue
+                }
+                
+                let member = Member(id: row[MemberTable.id], row[MemberTable.name], owner: event)
+                                
+                event.add(member: member)
+                cnt += 1
+            }
+        } catch {
+            print("Members loading failed")
+        }
+        print("Members loaded. Count: \(cnt)")
+        
+        
+        cnt = 0
+        do {
+            for row in try db!.prepare(BillTable.table) {
+                let event_id = row[BillTable.event_id]
+                guard let event = events.first(where: {$0.id == event_id}) else{
+                    continue
+                }
+                
+                let bill = Bill(id: row[BillTable.id], name: row[BillTable.name], cost: row[BillTable.cost], owner: event)
+                
+                event.add(bill: bill)
+                cnt += 1
+            }
+        } catch {
+            print("Bills loading failed: \(error.localizedDescription)")
+        }
+        print("Bills loaded. Count: \(cnt)")
+        
+        cnt = 0
+        do {
+            for row in try db!.prepare(MemberInBillTable.table) {
+                let event_id = row[MemberInBillTable.event_id]
+                guard let event = events.first(where: {$0.id == event_id}) else{
+                    continue
+                }
+                
+                let bill_id = row[MemberInBillTable.bill_id]
+                guard let bill = event.bills.first(where: {$0.id == bill_id}) else{
+                    continue
+                }
+                
+                let member_id = row[MemberInBillTable.member_id]
+                guard let member = event.members.first(where: {$0.id == member_id}) else{
+                    continue
+                }
+                
+                let memInBill = MemberInBill(id: row[MemberInBillTable.id], debt: row[MemberInBillTable.debt], manually: row[MemberInBillTable.manually], bill: bill, member: member)
+                
+                bill.membersInBills.append(memInBill)
+                member.membersInBills.add(memInBill)
+                
+                cnt += 1
+            }
+        } catch {
+            print("MemberInBills loading failed: \(error.localizedDescription)")
+        }
+        print("MemberInBills loaded. Count: \(cnt)")
+        
+        
         return events
     }
 }

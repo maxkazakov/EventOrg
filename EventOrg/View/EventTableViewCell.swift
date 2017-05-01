@@ -30,6 +30,8 @@ class EventTableViewCell: UITableViewCell {
     func setEvent(_ event: Event){
         eventName.text = event.name
         eventPic.image = event.image
-        eventPrice.text = String(format: "Price: %d$", event.sumCost)
+        let cost = event.sumCost
+        let strCost = String(format: "Price: %.2f$", cost)
+        eventPrice.text = strCost
     }
 }

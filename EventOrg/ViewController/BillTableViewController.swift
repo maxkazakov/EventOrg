@@ -67,9 +67,12 @@ class BillTableViewController: UITableViewController{
                 return
             }
             let bill = event.bills[selIdxPath.row]
-            let billCandidate = Bill()
-            billCandidate.assign(fromObj: bill)
-            billViewController.bill = billCandidate
+//            let billCandidate = Bill(owner: event)
+//            billCandidate.assign(fromObj: bill)
+            billViewController.bill = bill
+        }
+        else if (segue.identifier == "AddBillSegue"){
+            billViewController.bill = Bill(owner: event)
         }
     }
     
@@ -80,11 +83,14 @@ class BillTableViewController: UITableViewController{
         if let selectedPath = tableView.indexPathForSelectedRow{
             let bill = event.bills[selectedPath.row]
             bill.assign(fromObj: vc.bill)
+            bill.update()            
             tableView.reloadRows(at: [selectedPath], with: .middle)
         }
         else{
             let idxPath = IndexPath(row: event.bills.count, section: 0)
-            event.bills.append(vc.bill)
+            let bill = vc.bill!
+            event.bills.append(bill)
+            bill.save()
             tableView.insertRows(at: [idxPath], with: .automatic)
         }
     }

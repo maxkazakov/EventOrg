@@ -40,6 +40,10 @@ class Event: Base {
         super.init(id: id)        
     }
     
+    deinit{
+        self.delete()
+    }
+    
     func remove(member: Member){
         guard let idx = members.index(of: member) else {
             fatalError("Event does not contain this member")
@@ -59,6 +63,7 @@ class Event: Base {
             fatalError("Event does not contain this bill")
         }
         bills.remove(at: idx)
+        
     }
     
     func add(member: Member){
@@ -66,7 +71,7 @@ class Event: Base {
     }
     
     func add(bill: Bill){
-        bills.append(bill)
+        bills.append(bill)        
     }
     
     var sumCost: Double {
@@ -80,8 +85,9 @@ class Event: Base {
     }
 }
 
-// человек в тусовке
-class Member: Equatable {
+// участников
+class Member: Base, Equatable {
+    weak var owner: Event!
     
     var membersInBills = NSHashTable<MemberInBill>(options: .weakMemory)
     
@@ -89,8 +95,20 @@ class Member: Equatable {
     // TODO для исключения человека из тусовки без удаления из списка
     var enabled: Bool = true
     
-    init(_ name: String){
+    init(id: Int64, _ name: String, owner: Event?){
         self.name = name
+        self.owner = owner
+        super.init(id: id)
+    }
+       
+    convenience init(_ name: String, owner: Event){
+        self.init(id: -1, name, owner: owner)
+    }
+    
+    deinit {
+        membersInBills.allObjects.forEach({$0.detach()})
+        self.delete()
+        print("member deleted")
     }
     
     var debt: Double{
@@ -109,34 +127,36 @@ class Member: Equatable {
     static func == (lhs: Member, rhs: Member) -> Bool {
         return lhs === rhs
     }
-    
-    deinit {
-        membersInBills.allObjects.forEach({$0.detach()})
-        print("deinit member")
-    }
 }
 
 // мужик в чеке
-class MemberInBill: Equatable{
+class MemberInBill: Base, Equatable{
     weak var bill: Bill!
     weak var member: Member!
     
-    deinit {
-        print("deinit memberinbill")
-    }
-    
     // Вручную отредактированные не реагируют на изменения других объектов
     var editedManually = false
+    public private(set) var debt: Double = 0.0
+    
+    deinit {
+        self.delete()
+        print("deinit memberinbill")
+    }
     
     func detach(){
         bill.remove(memberInBill: self)
     }
     
-    public private(set) var debt: Double = 0.0
-    
-    init(bill: Bill, member: Member) {
+    init(id: Int64, debt: Double, manually: Bool, bill: Bill?, member: Member?) {
+        super.init(id: id)
         self.bill = bill
         self.member = member
+        self.debt = debt
+        self.editedManually = manually
+    }
+    
+    convenience init(bill: Bill, member: Member){
+        self.init(id: -1, debt: 0.0, manually: false, bill: bill, member: member)
     }
     
     static func == (lhs: MemberInBill, rhs: MemberInBill) -> Bool {
@@ -184,7 +204,9 @@ class MemberInBill: Equatable{
 }
 
 
-class Bill: Equatable, Assignable{
+class Bill: Base, Equatable, Assignable{
+    weak var owner: Event!
+    
     typealias T = Bill
     
     func assign(fromObj obj: Bill) {
@@ -202,17 +224,32 @@ class Bill: Equatable, Assignable{
     var name: String = ""
     var images: [UIImage] = []
     var membersInBills: [MemberInBill] = []
+    var cost: Double = 0.0
     
     
     static func == (lhs: Bill, rhs: Bill) -> Bool {
         return lhs === rhs
-    }
+    }        
     
-    var cost: Double = 0.0
-    
-    init(){
+    init(id: Int64, name: String, cost: Double, owner: Event?){
+        super.init(id: id)
+        self.name = name
+        self.cost = cost
+        self.owner = owner
+        
         NotificationCenter.default.addObserver(self, selector: #selector(onMemberInBillDebtChanged), name: NotificationTypes.memberInBillDebtChanged, object: nil)
     }
+    
+    convenience init(owner: Event?){
+        self.init(id: -1, name: "", cost: 0.0, owner: owner)
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+        self.delete()
+        print("bill deleted")
+    }
+
     
     @objc func onMemberInBillDebtChanged(_ notification: Notification){       
         guard let userInfo = notification.userInfo,
@@ -229,15 +266,18 @@ class Bill: Equatable, Assignable{
     
     // добавление нового участника в чек
     func append(member: Member){
-        let memberInBill = MemberInBill(bill: self, member: member)
+        let memberInBill = MemberInBill(bill: self, member: member)        
         membersInBills.append(memberInBill)
         member.membersInBills.add(memberInBill)
+        memberInBill.save()
     }
     
     func remove(memberInBillAt idx: Int){
         guard idx < membersInBills.count else{
             fatalError()
         }
+        let memInBill = membersInBills[idx]
+        memInBill.delete()
         membersInBills.remove(at: idx)
     }
     
@@ -250,10 +290,6 @@ class Bill: Equatable, Assignable{
     // Получить всех связанных членов
     func getMembers() -> [Member]{
         return membersInBills.map{ $0.member }
-    }
-    
-    deinit {
-        NotificationCenter.default.removeObserver(self)
     }
     
     func resetBillMembers(){

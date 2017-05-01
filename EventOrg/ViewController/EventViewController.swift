@@ -16,13 +16,15 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate{
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        // Do any additional setup after loading the view.
         eventNameTf.delegate = self
-        
-//      Edit mode
-        if (event == nil){
-            event = Event(name: "", withPic: UIImage(named: "DefaultEventImg"))
-        }
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+//        textField.
+    }
+    
+    deinit {
+        print("EventViewController deleted")
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -105,9 +107,11 @@ UIImagePickerControllerDelegate, UINavigationControllerDelegate{
     }
     
     func textFieldDidEndEditing(_ textField: UITextField) {
-        event.name = eventNameTf.text ?? ""
-        navItem.title = event.name
-        updateSaveBtn()
+        if(navigationController?.visibleViewController == self){
+            event.name = eventNameTf.text ?? ""
+            navItem.title = event.name
+            updateSaveBtn()
+        }
     }
     
     @IBAction func selectImageFromPhotoLibrary(_ sender: UITapGestureRecognizer) {

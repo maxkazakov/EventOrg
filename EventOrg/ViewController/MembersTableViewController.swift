@@ -16,12 +16,7 @@ class MembersTableViewController: UITableViewController, CNContactPickerDelegate
     
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-//        NotificationCenter.default.addObserver(self, selector: #selector(self.updateDebts), name: NotificationTypes.memberEnabledChanged, object: nil)
     }
-    
-//    deinit {
-//        NotificationCenter.default.removeObserver(self)
-//    }
     
     func updateMemberEnabled(sender: MemberTableViewCell){
         let id = table.indexPath(for: sender)?.row
@@ -71,8 +66,8 @@ class MembersTableViewController: UITableViewController, CNContactPickerDelegate
         }
         alertController.addAction(AddFromContactAction)
         
-        let AddAction = UIAlertAction(title: "Add", style: .default)
-        alertController.addAction(AddAction)
+//        let AddAction = UIAlertAction(title: "Add", style: .default)
+//        alertController.addAction(AddAction)
         self.present(alertController, animated: true, completion: nil)
     }
 
@@ -80,7 +75,11 @@ class MembersTableViewController: UITableViewController, CNContactPickerDelegate
         
         for contact in contacts{
             let newIndexPath = IndexPath(row: event.members.count, section: 0)
-            event.add(member: Member(CNContactFormatter.string(from: contact, style: .fullName)!))
+            let member = Member(CNContactFormatter.string(from: contact, style: .fullName)!, owner: event)
+            
+            event.add(member: member)
+            member.save()
+            
             table.insertRows(at: [newIndexPath], with: .automatic)
         }
     }
@@ -112,6 +111,7 @@ class MembersTableViewController: UITableViewController, CNContactPickerDelegate
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
             event.remove(memberAt: indexPath.row)
+            
             tableView.deleteRows(at: [indexPath], with: .fade)
         } else if editingStyle == .insert {
             // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view

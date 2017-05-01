@@ -23,26 +23,42 @@ class EventsTableViewController: UITableViewController {
         navItem.leftBarButtonItem = editButtonItem
     }
 
+    deinit {
+        print("EventsTableViewController deleted")
+    }
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
 
+    
+    func getSelectedEvent() -> Event?{
+        
+        if let selectedPath = table.indexPathForSelectedRow{
+            return events[selectedPath.row]
+        }
+        return nil
+    }
+    
+    
+    override func viewWillAppear(_ animated: Bool) {
+        if let event = getSelectedEvent(), let selectedPath = table.indexPathForSelectedRow{
+            event.update()
+            table.reloadRows(at: [selectedPath], with: .middle)
+        }
+    }
+    
     @IBAction func unwindToEventList(sender: UIStoryboardSegue) {
         if let eventViewController = sender.source as? EventViewController
         {
-            if let selectedPath = table.indexPathForSelectedRow{
-                let event = events[selectedPath.row]
-                event.update()
-                table.reloadRows(at: [selectedPath], with: .middle)
+            if (getSelectedEvent() != nil){
+                return
             }
-            else{
-                let event: Event! = eventViewController.event
-                event.save()
-                let newIndexPath = IndexPath(row: events.count, section: 0)
-                events.append(event)
-                table.insertRows(at: [newIndexPath], with: .automatic)
-            }
+            let event: Event! = eventViewController.event
+            event.save()
+            let newIndexPath = IndexPath(row: events.count, section: 0)
+            events.append(event)
+            table.insertRows(at: [newIndexPath], with: .automatic)
         }
     }
     
@@ -72,20 +88,20 @@ class EventsTableViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete{
-            let event = events.remove(at: indexPath.row)
-            event.delete()            
+            events.remove(at: indexPath.row)
             tableView.deleteRows(at: [indexPath], with: .fade)
         }
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         super.prepare(for: segue, sender: sender)
+        
+        guard let destController = segue.destination as? EventViewController  else {
+            return
+        }
+
         if segue.identifier == "EditEvent"{
             guard let selectedCell = sender as? EventTableViewCell else{
-                return
-            }
-            
-            guard let destController = segue.destination as? EventViewController  else {
                 return
             }
             
@@ -95,6 +111,11 @@ class EventsTableViewController: UITableViewController {
             let selectedEvent = events?[indexPath.row]
             destController.event = selectedEvent!
         }
+        else if (segue.identifier == "NewEvent"){
+            let event = Event(name: "", withPic: UIImage(named: "DefaultEventImg"))
+            destController.event = event
+        }
+        
     }
 
 }
