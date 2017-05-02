@@ -18,7 +18,7 @@ struct MemberTable {
 
 extension Member: Persist{
     
-    func save() {
+    func doSave() {
         // сохраняем только если владелец есть
         guard let owner = self.owner else {
             return
@@ -38,7 +38,7 @@ extension Member: Persist{
         }
     }
     
-    func delete() {
+    func doDelete() {
         let id = self.id
         guard id >= 0 else{
             return
@@ -52,7 +52,7 @@ extension Member: Persist{
         }
     }
     
-    func update() {
+    func doUpdate() {
         let id = self.id
         guard id >= 0 else{
             return

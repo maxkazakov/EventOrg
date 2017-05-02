@@ -12,9 +12,9 @@ import SQLite
 protocol Persist {
     associatedtype ValueType = Self
     
-    func save()
-    func update()
-    func delete()
+    func doSave()
+    func doUpdate()
+    func doDelete()
 }
 
 extension Persist{

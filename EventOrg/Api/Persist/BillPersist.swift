@@ -18,7 +18,7 @@ struct BillTable {
 }
 
 extension Bill: Persist{
-    func save() {
+    func doSave() {
         let owner_id = self.owner.id
         // сохраняем только если владелец есть в бд
         guard owner_id >= 0 else {
@@ -38,7 +38,7 @@ extension Bill: Persist{
         membersInBills.forEach({$0.save()})
     }
     
-    func delete() {
+    func doDelete() {
         let id = self.id
         guard id >= 0 else{
             return
@@ -52,7 +52,7 @@ extension Bill: Persist{
         }
     }
     
-    func update() {
+    func doUpdate() {
         let id = self.id
         guard id >= 0 else{
             return

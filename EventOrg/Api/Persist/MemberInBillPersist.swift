@@ -20,7 +20,7 @@ struct MemberInBillTable {
 }
 
 extension MemberInBill: Persist{
-    func save() {
+    func doSave() {
         let bill_id = self.bill.id
         let member_id = self.member.id
         // сохраняем только если зависимости уже в бд
@@ -44,7 +44,7 @@ extension MemberInBill: Persist{
         }
     }
     
-    func delete() {
+    func doDelete() {
         let id = self.id
         guard id >= 0 else{
             return
@@ -58,7 +58,7 @@ extension MemberInBill: Persist{
         }
     }
     
-    func update() {
+    func doUpdate() {
         let id = self.id
         guard id >= 0 else{
             return

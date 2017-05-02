@@ -51,20 +51,20 @@ class DataBase{
                 try db!.run(MemberInBillTable.table.drop(ifExists: true))
             }
             
-            try db!.run(EventTable.table.create(ifNotExists: false) { table in
+            try db!.run(EventTable.table.create(ifNotExists: true) { table in
                 table.column(EventTable.id, primaryKey: .autoincrement)
                 table.column(EventTable.name)
                 table.column(EventTable.image)
             })
             
-            try db!.run(MemberTable.table.create(ifNotExists: false) { table in
+            try db!.run(MemberTable.table.create(ifNotExists: true) { table in
                 table.column(MemberTable.id, primaryKey: .autoincrement)
                 table.column(MemberTable.name)
                 table.column(MemberTable.event_id)
                 table.foreignKey(MemberTable.event_id, references: EventTable.table, EventTable.id, delete: .cascade)
             })
             
-            try db!.run(BillTable.table.create(ifNotExists: false) { table in
+            try db!.run(BillTable.table.create(ifNotExists: true) { table in
                 table.column(BillTable.id, primaryKey: .autoincrement)
                 table.column(BillTable.name)
                 table.column(BillTable.cost)
@@ -72,7 +72,7 @@ class DataBase{
                 table.foreignKey(BillTable.event_id, references: EventTable.table, EventTable.id, delete: .cascade)
             })
             
-            try db!.run(MemberInBillTable.table.create(ifNotExists: false) { table in
+            try db!.run(MemberInBillTable.table.create(ifNotExists: true) { table in
                 table.column(MemberInBillTable.id, primaryKey: .autoincrement)
                 table.column(MemberInBillTable.debt)
                 table.column(MemberInBillTable.manually)
@@ -91,17 +91,19 @@ class DataBase{
         }
     }
     
-    func selectAllEvents() -> [Event]{
+    func getAllEvents(callback: (Event) -> Void) {
         var events = [Event]()
         
         var cnt = 0
         do {
             for row in try db!.prepare(EventTable.table) {
-                events.append(Event(
+                let event = Event(
                     id: row[EventTable.id],
                     name: row[EventTable.name],
-                    withPic: row.get(EventTable.image)))
+                    withPic: row.get(EventTable.image))
+                events.append(event)
                 cnt += 1
+                callback(event)
             }
         } catch {
             print("Events loading failed")
@@ -175,8 +177,6 @@ class DataBase{
         }
         print("MemberInBills loaded. Count: \(cnt)")
         
-        
-        return events
     }
 }
 
@@ -189,5 +189,23 @@ extension UIImage: Value {
     }
     public var datatypeValue: Blob {
         return UIImagePNGRepresentation(self)!.datatypeValue
+    }
+}
+
+extension Persist{
+    func save(){
+        DispatchQueue.global(qos: .utility).async {
+            self.doSave()
+        }
+    }
+    func update(){
+        DispatchQueue.global(qos: .utility).async {
+            self.doUpdate()
+        }
+    }
+    func delete(){
+//        DispatchQueue.global(qos: .utility).async {
+            self.doDelete()
+//        }
     }
 }

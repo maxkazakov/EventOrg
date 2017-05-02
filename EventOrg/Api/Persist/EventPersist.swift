@@ -18,22 +18,24 @@ struct EventTable {
 
 extension Event: Persist{        
     
-    func save(){
-        do {
-            let insert = EventTable.table.insert(EventTable.name <- self.name, EventTable.image <- self.image)
-            let id = try dataBase.run(insert)
-            self.id = id
-            print("Event was successfully saved")
-        } catch{
-            print("Event saving failed: \(error)")
+    func doSave(){
+        DispatchQueue.global(qos: .utility).async {
+            do {
+                let insert = EventTable.table.insert(EventTable.name <- self.name, EventTable.image <- self.image)
+                let id = try self.dataBase.run(insert)
+                self.id = id
+                print("Event was successfully saved")
+            } catch{
+                print("Event saving failed: \(error)")
+            }
+            
+            self.members.forEach({$0.save()})
+            self.bills.forEach({$0.save()})
         }
-        
-        members.forEach({$0.save()})
-        bills.forEach({$0.save()})
     }
     
     // Удалить event
-    func delete()
+    func doDelete()
     {
         let id = self.id
         guard id >= 0 else{
@@ -49,7 +51,7 @@ extension Event: Persist{
     }
     
     // Обновить event
-    func update()
+    func doUpdate()
     {
         let id = self.id
         guard id >= 0 else{

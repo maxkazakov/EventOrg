@@ -10,17 +10,26 @@ import UIKit
 
 class EventsTableViewController: UITableViewController {
 
-    var events: [Event]!
+    var events: [Event] = []
     
     @IBOutlet weak var navItem: UINavigationItem!
     @IBOutlet var table: UITableView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        events = DataBase.instance.selectAllEvents();
-        
         navItem.leftBarButtonItem = editButtonItem
+        
+        DispatchQueue.global(qos: .userInteractive).async {
+            DataBase.instance.getAllEvents(){ (ev) in
+                DispatchQueue.main.async{
+                    self.events.append(ev)
+                    self.table.beginUpdates()
+                    self.table.insertRows(at: [IndexPath(row: self.events.count-1, section: 0)], with: .automatic)
+                    self.table.endUpdates()
+                    usleep(200000)
+                }
+            }
+        }
     }
 
     deinit {
@@ -70,14 +79,14 @@ class EventsTableViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of rows
-        return events!.count
+        return events.count 
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cellIdentifier = "EventTableViewCell"
         let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier, for: indexPath) as! EventTableViewCell
         
-        let event = events![indexPath.row]
+        let event = events[indexPath.row]
         cell.setEvent(event)
         return cell
     }
@@ -108,8 +117,8 @@ class EventsTableViewController: UITableViewController {
             guard let indexPath = table.indexPath(for: selectedCell) else {
                 return
             }
-            let selectedEvent = events?[indexPath.row]
-            destController.event = selectedEvent!
+            let selectedEvent = events[indexPath.row]
+            destController.event = selectedEvent
         }
         else if (segue.identifier == "NewEvent"){
             let event = Event(name: "", withPic: UIImage(named: "DefaultEventImg"))
